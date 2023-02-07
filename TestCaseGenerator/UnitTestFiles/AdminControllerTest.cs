@@ -8,702 +8,703 @@ namespace UnitTestGenerator
         {
             // Arrange
             // Act
-             result = GetListOfVendors()
+            var result = GetListOfVendors();
             // Assert
         }
-    }
+
         [Fact]
         public void CreateVendorTest()
         {
             // Arrange
             // Act
-             result = CreateVendor(
+            var result = CreateVendor();
             // Assert
         }
-    }
+
         [Fact]
         public void GetStringValueTest()
         {
             // Arrange
             // Act
-             result = GetStringValue()
+            var result = GetStringValue();
             // Assert
         }
-    }
+
         [Fact]
         public void DeleteVendorStudentsTest()
         {
             // Arrange
             // Act
-             result = DeleteVendorStudents(string vendorId)
+            var result = DeleteVendorStudents(vendorId);
             // Assert
         }
-    }
+
         [Fact]
         public void DeleteExamInstancesTest()
         {
             // Arrange
             // Act
-             result = DeleteExamInstances(string userId, [FromQuery] string examType = null)
+            var result = DeleteExamInstances(userId, examType);
             // Assert
         }
-    }
+
         [Fact]
         public void CreateLawSchoolSuccessOrderAndAssignProductTest()
         {
             // Arrange
             // Act
-             result = CreateLawSchoolSuccessOrderAndAssignProduct([FromBody] CybersourceAuthorization cybersourceAuthorization)
+            var result = CreateLawSchoolSuccessOrderAndAssignProduct(cybersourceAuthorization);
             // Assert
         }
-    }
+
         [Fact]
         public void AddExamPasswordTest()
         {
             // Arrange
             // Act
-             result = AddExamPassword(string examProductId, [FromBody] ExamPasswordDto examPassword)
+            var result = AddExamPassword(examProductId, examPassword);
             // Assert
         }
-    }
+
         [Fact]
         public void AddExamDistributionTest()
         {
             // Arrange
             // Act
-             result = AddExamDistribution(
+            var result = AddExamDistribution();
             // Assert
         }
-    }
+
         [Fact]
         public void GetFutureExamsTest()
         {
             // Arrange
             // Act
-             result = GetFutureExams()
+            var result = GetFutureExams();
             // Assert
         }
-    }
+
         [Fact]
         public void CreateExamPlaceholderProductTest()
         {
             // Arrange
             // Act
-             result = CreateExamPlaceholderProduct([FromBody] LSATExamImportDto examImport)
+            var result = CreateExamPlaceholderProduct(examImport);
             // Assert
         }
-    }
+
         [Fact]
         public void GetTestResultTest()
         {
             // Arrange
             // Act
-             result = GetTestResult(string userId, string testInstanceId)
+            var result = GetTestResult(userId, testInstanceId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetVendorTestResultTest()
         {
             // Arrange
             // Act
-             result = GetVendorTestResult(string userId, string testInstanceId)
+            var result = GetVendorTestResult(userId, testInstanceId);
             // Assert
         }
-    }
+
         [Fact]
         public void DeleteVendorStudentTest()
         {
             // Arrange
             // Act
-             result = DeleteVendorStudent(string vendorId, string studentCoachingId)
+            var result = DeleteVendorStudent(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void RefundDeactivateStudentTest()
         {
             // Arrange
             // Act
-             result = RefundDeactivateStudent(string vendorId, string studentCoachingId, [FromQuery] DateTime? backDateTime)
+            var result = RefundDeactivateStudent(vendorId, studentCoachingId, backDateTime);
             // Assert
         }
-    }
+
         [Fact]
         public void MarkRefundTest()
         {
             // Arrange
             // Act
-             result = MarkRefund(string vendorId, string studentCoachingId)
+            var result = MarkRefund(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void UploadStudentDataTest()
         {
             // Arrange
             // Act
-             result = UploadStudentData([FromBody] UploadStudentDataDto csvFile)
+            var result = UploadStudentData(csvFile);
             // Assert
         }
-    }
+
         [Fact]
         public void ProcessUploadedFileTest()
         {
             // Arrange
             // Act
-             result = ProcessUploadedFile(string vendorId, string fileId)
+            var result = ProcessUploadedFile(vendorId, fileId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetBulkImportDataStatusTest()
         {
             // Arrange
             // Act
-             result = GetBulkImportDataStatus(string vendorId)
+            var result = GetBulkImportDataStatus(vendorId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetProcessedRecordsTest()
         {
             // Arrange
             // Act
-             result = GetProcessedRecords(string vendorId, string fileId)
+            var result = GetProcessedRecords(vendorId, fileId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserTestInstanceSummaryTest()
         {
             // Arrange
             // Act
-             result = GetUserTestInstanceSummary(string userId, string testInstanceId)
+            var result = GetUserTestInstanceSummary(userId, testInstanceId);
             // Assert
         }
-    }
+
         [Fact]
         public void MergeUserAccountsTest()
         {
             // Arrange
             // Act
-             result = MergeUserAccounts(string userId, string mergeFromUserId)
+            var result = MergeUserAccounts(userId, mergeFromUserId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetListOfUserOrganizationIdentifiersTest()
         {
             // Arrange
             // Act
-             result = GetListOfUserOrganizationIdentifiers(
+            var result = GetListOfUserOrganizationIdentifiers();
             // Assert
         }
-    }
+
         [Fact]
         public void GetAllUsersTest()
         {
             // Arrange
             // Act
-             result = GetAllUsers(
+            var result = GetAllUsers();
             // Assert
         }
-    }
+
         [Fact]
         public void GetAllUserOrderHoldTest()
         {
             // Arrange
             // Act
-             result = GetAllUserOrderHold(
+            var result = GetAllUserOrderHold();
             // Assert
         }
-    }
+
         [Fact]
         public void RecreateUserOrderTest()
         {
             // Arrange
             // Act
-             result = RecreateUserOrder(string userId)
+            var result = RecreateUserOrder(userId);
             // Assert
         }
-    }
+
         [Fact]
         public void MigrateUserOrdersTest()
         {
             // Arrange
             // Act
-             result = MigrateUserOrders(string userId)
+            var result = MigrateUserOrders(userId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateStudentSubscriptionDatesTest()
         {
             // Arrange
             // Act
-             result = UpdateStudentSubscriptionDates(string vendorId, string studentCoachingId)
+            var result = UpdateStudentSubscriptionDates(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserTestHistoryTest()
         {
             // Arrange
             // Act
-             result = GetUserTestHistory(string userId, [FromQuery] TestHistoryFilteringModel testHistoryFilteringModel)
+            var result = GetUserTestHistory(userId, testHistoryFilteringModel);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserTestScoreTest()
         {
             // Arrange
             // Act
-             result = GetUserTestScore(string userId, string testInstanceId)
+            var result = GetUserTestScore(userId, testInstanceId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserTestReportPdfTest()
         {
             // Arrange
             // Act
-             result = GetUserTestReportPdf(
+            var result = GetUserTestReportPdf();
             // Assert
         }
-    }
+
         [Fact]
         public void GenerateVendorOrderByStudentCoachingIdTest()
         {
             // Arrange
             // Act
-             result = GenerateVendorOrderByStudentCoachingId(
+            var result = GenerateVendorOrderByStudentCoachingId();
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateFeeWaiverVendorOrdersTest()
         {
             // Arrange
             // Act
-             result = UpdateFeeWaiverVendorOrders(
+            var result = UpdateFeeWaiverVendorOrders();
             // Assert
         }
-    }
+
         [Fact]
         public void UpdatePrepaidStudentVendorOrderTest()
         {
             // Arrange
             // Act
-             result = UpdatePrepaidStudentVendorOrder(string vendorId, string studentCoachingId)
+            var result = UpdatePrepaidStudentVendorOrder(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void RenewOrStudentAndSendViolationEmailTest()
         {
             // Arrange
             // Act
-             result = RenewOrStudentAndSendViolationEmail(string vendorId, VendorRequestOrderDto vendorRequestOrderDto)
+            var result = RenewOrStudentAndSendViolationEmail(vendorId, vendorRequestOrderDto);
             // Assert
         }
-    }
+
         [Fact]
         public void SendVendorViolationEmailTest()
         {
             // Arrange
             // Act
-             result = SendVendorViolationEmail(string vendorId, string studentCoachingId)
+            var result = SendVendorViolationEmail(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateSubscriptionDatesPrepOnlyTest()
         {
             // Arrange
             // Act
-             result = UpdateSubscriptionDatesPrepOnly(string vendorId, string studentCoachingId)
+            var result = UpdateSubscriptionDatesPrepOnly(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void RedeemUnredeemersTest()
         {
             // Arrange
             // Act
-             result = RedeemUnredeemers(string vendorId, string studentCoachingId)
+            var result = RedeemUnredeemers(vendorId, studentCoachingId);
             // Assert
         }
-    }
+
         [Fact]
         public void AddExamCertifyingStatementTest()
         {
             // Arrange
             // Act
-             result = AddExamCertifyingStatement(string examProductId, [FromBody] ExamCertifyingStatementDto examCertifyingStatement)
+            var result = AddExamCertifyingStatement(examProductId, examCertifyingStatement);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorTypeTest()
         {
             // Arrange
             // Act
-             result = UpdateVendorType(string vendorId, string vendorType)
+            var result = UpdateVendorType(vendorId, vendorType);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorNegotiatedCoachingRateTest()
         {
             // Arrange
             // Act
-             result = UpdateVendorNegotiatedCoachingRate(string vendorId, decimal negotiatedCoachingRate)
+            var result = UpdateVendorNegotiatedCoachingRate(vendorId, negotiatedCoachingRate);
             // Assert
         }
-    }
+
         [Fact]
         public void CorrectUserProgramDesignationTest()
         {
             // Arrange
             // Act
-             result = CorrectUserProgramDesignation(string userId, string programId)
+            var result = CorrectUserProgramDesignation(userId, programId);
             // Assert
         }
-    }
+
         [Fact]
         public void CreateVendorOrderfromUserOrderTest()
         {
             // Arrange
             // Act
-             result = CreateVendorOrderfromUserOrder(string vendorId, string userId, string userOrderId)
+            var result = CreateVendorOrderfromUserOrder(vendorId, userId, userOrderId);
             // Assert
         }
-    }
+
         [Fact]
         public void CreateUserOrderHoldTest()
         {
             // Arrange
             // Act
-             result = CreateUserOrderHold(
+            var result = CreateUserOrderHold();
             // Assert
         }
-    }
+
         [Fact]
         public void AddDefaultExamSettingsTest()
         {
             // Arrange
             // Act
-             result = AddDefaultExamSettings(
+            var result = AddDefaultExamSettings();
             // Assert
         }
-    }
+
         [Fact]
         public void RemoveUserOrderHoldTest()
         {
             // Arrange
             // Act
-             result = RemoveUserOrderHold(string userId, string orderId)
+            var result = RemoveUserOrderHold(userId, orderId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserExamWritingSettingsTest()
         {
             // Arrange
             // Act
-             result = GetUserExamWritingSettings(string userId)
+            var result = GetUserExamWritingSettings(userId);
             // Assert
         }
-    }
+
         [Fact]
         public void CreateUserExamWritingSettingsTest()
         {
             // Arrange
             // Act
-             result = CreateUserExamWritingSettings(string userId, [FromBody] UserWritingExamSettingsDto userWritingExamSettingsDto)
+            var result = CreateUserExamWritingSettings(userId, userWritingExamSettingsDto);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateUserExamWritingSettingsTest()
         {
             // Arrange
             // Act
-             result = UpdateUserExamWritingSettings(string userId, [FromBody] UserWritingExamSettingsDto userWritingExamSettingsDto)
+            var result = UpdateUserExamWritingSettings(userId, userWritingExamSettingsDto);
             // Assert
         }
-    }
+
         [Fact]
         public void CancelWritingExamAndReservationTest()
         {
             // Arrange
             // Act
-             result = CancelWritingExamAndReservation(string userId, string examId)
+            var result = CancelWritingExamAndReservation(userId, examId);
             // Assert
         }
-    }
+
         [Fact]
         public void SeparateSectionModulesTest()
         {
             // Arrange
             // Act
-             result = SeparateSectionModules(string moduleId)
+            var result = SeparateSectionModules(moduleId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorOrderbyOrderIdTest()
         {
             // Arrange
             // Act
-             result = UpdateVendorOrderbyOrderId(string vendorId, string orderId)
+            var result = UpdateVendorOrderbyOrderId(vendorId, orderId);
             // Assert
         }
-    }
+
         [Fact]
         public void AddExamStorageTableRecordsTest()
         {
             // Arrange
             // Act
-             result = AddExamStorageTableRecords(List<ExamStorageTableRecordDto> examStorageTableRecords)
+            var result = AddExamStorageTableRecords(examStorageTableRecords);
             // Assert
         }
-    }
+
         [Fact]
         public void GetDefaultExamSettingsTest()
         {
             // Arrange
             // Act
-             result = GetDefaultExamSettings(string examProductId)
+            var result = GetDefaultExamSettings(examProductId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetExamDistributionTest()
         {
             // Arrange
             // Act
-             result = GetExamDistribution(string examProductId)
+            var result = GetExamDistribution(examProductId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetExamUsageRecordsTest()
         {
             // Arrange
             // Act
-             result = GetExamUsageRecords(string examProductId)
+            var result = GetExamUsageRecords(examProductId);
             // Assert
         }
-    }
+
         [Fact]
         public void RefundVendorOrderTest()
         {
             // Arrange
             // Act
-             result = RefundVendorOrder(string vendorId, string studentCoachingId, string orderId)
+            var result = RefundVendorOrder(vendorId, studentCoachingId, orderId);
             // Assert
         }
-    }
+
         [Fact]
         public void RefundOrderbyProductTest()
         {
             // Arrange
             // Act
-             result = RefundOrderbyProduct(string vendorId, string studentCoachingId, string orderId, string productId)
+            var result = RefundOrderbyProduct(vendorId, studentCoachingId, orderId, productId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetUserExamIncidentTest()
         {
             // Arrange
             // Act
-             result = GetUserExamIncident(string userId, string adminDate, int adminSequenceNumber)
+            var result = GetUserExamIncident(userId, adminDate, adminSequenceNumber);
             // Assert
         }
-    }
+
         [Fact]
         public void ResetExamSectionStartTimeTest()
         {
             // Arrange
             // Act
-             result = ResetExamSectionStartTime(string userId)
+            var result = ResetExamSectionStartTime(userId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetPagedUsersTest()
         {
             // Arrange
             // Act
-             result = GetPagedUsers(
+            var result = GetPagedUsers();
             // Assert
         }
-    }
+
         [Fact]
         public void GetPaginatedActivitiesTest()
         {
             // Arrange
             // Act
-             result = GetPaginatedActivities([FromQuery] UserActivitiesFilterModel userActivitiesFilterModel)
+            var result = GetPaginatedActivities(userActivitiesFilterModel);
             // Assert
         }
-    }
+
         [Fact]
         public void GetExamCertifyingStatementTest()
         {
             // Arrange
             // Act
-             result = GetExamCertifyingStatement(string examProductId)
+            var result = GetExamCertifyingStatement(examProductId);
             // Assert
         }
-    }
+
         [Fact]
         public void VerifyExamPasswordSetupTest()
         {
             // Arrange
             // Act
-             result = VerifyExamPasswordSetup(string examProductId, string examPassword)
+            var result = VerifyExamPasswordSetup(examProductId, examPassword);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVolumeDistributionExpectedTestTakersTest()
         {
             // Arrange
             // Act
-             result = UpdateVolumeDistributionExpectedTestTakers(
+            var result = UpdateVolumeDistributionExpectedTestTakers();
             // Assert
         }
-    }
+
         [Fact]
         public void ResetUserExamTestInstanceStateBrowserValueTest()
         {
             // Arrange
             // Act
-             result = ResetUserExamTestInstanceStateBrowserValue(
+            var result = ResetUserExamTestInstanceStateBrowserValue();
             // Assert
         }
-    }
+
         [Fact]
         public void AddModuleToProductTest()
         {
             // Arrange
             // Act
-             result = AddModuleToProduct([FromBody] ModuleDto moduleDto, [FromQuery] string productId = null)
+            var result = AddModuleToProduct(moduleDto, productId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetExamInstanceInfoTest()
         {
             // Arrange
             // Act
-             result = GetExamInstanceInfo(string userId, string examProductId)
+            var result = GetExamInstanceInfo(userId, examProductId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetProctoringReservationsTest()
         {
             // Arrange
             // Act
-             result = GetProctoringReservations(string userId)
+            var result = GetProctoringReservations(userId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateReferenceCodeByOrderIdTest()
         {
             // Arrange
             // Act
-             result = UpdateReferenceCodeByOrderId(string vendorId, string orderId)
+            var result = UpdateReferenceCodeByOrderId(vendorId, orderId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorProductOfferTest()
         {
             // Arrange
             // Act
-             result = UpdateVendorProductOffer([FromBody] NewVendorDto newVendorDto)
+            var result = UpdateVendorProductOffer(newVendorDto);
             // Assert
         }
-    }
+
         [Fact]
         public void GeneratePDFReceiptTest()
         {
             // Arrange
             // Act
-             result = GeneratePDFReceipt(
+            var result = GeneratePDFReceipt();
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateOrderProductsDisplayNameTest()
         {
             // Arrange
             // Act
-             result = UpdateOrderProductsDisplayName(
+            var result = UpdateOrderProductsDisplayName();
             // Assert
         }
-    }
+
         [Fact]
         public void GetPaginatedVendorsTest()
         {
             // Arrange
             // Act
-             result = GetPaginatedVendors([FromQuery] VendorsFilterModel vendorsFilterModel)
+            var result = GetPaginatedVendors(vendorsFilterModel);
             // Assert
         }
-    }
+
         [Fact]
         public void GetAllPlatformUsersbyVendorIdTest()
         {
             // Arrange
             // Act
-             result = GetAllPlatformUsersbyVendorId([FromQuery] AllPlatformUsersFilterModel platformuserFilteringModel, string vendorId)
+            var result = GetAllPlatformUsersbyVendorId(platformuserFilteringModel, vendorId);
             // Assert
         }
-    }
+
         [Fact]
         public void GetAllUsersv2Test()
         {
             // Arrange
             // Act
-             result = GetAllUsersv2(
+            var result = GetAllUsersv2();
             // Assert
         }
-    }
+
         [Fact]
         public void LoadConvertedScoresTest()
         {
             // Arrange
             // Act
-             result = LoadConvertedScores([FromBody] ModuleConversionTableDto moduleConversionTable)
+            var result = LoadConvertedScores(moduleConversionTable);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorDisplayNameTest()
         {
             // Arrange
             // Act
-             result = UpdateVendorDisplayName(string vendorId)
+            var result = UpdateVendorDisplayName(vendorId);
             // Assert
         }
-    }
+
         [Fact]
         public void UpdateVendorTest()
         {
             // Arrange
             // Act
-             result = UpdateVendor(
+            var result = UpdateVendor();
             // Assert
         }
+
     }
 }
 
