@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using System.Linq;
+using System;
+using System.Text;
 
 namespace TestCaseGenerator
 {
@@ -13,6 +15,7 @@ namespace TestCaseGenerator
     {
         public static void GenerateUnitTests(string filePath)
         {
+            
             // Read the contents of the file
             var fileContents = File.ReadAllText(filePath);
 
@@ -42,7 +45,9 @@ namespace TestCaseGenerator
 
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
-           
+
+
+
         }
         public static string RemoveBetween(string sourceString, string startTag, string endTag)
         {
@@ -101,26 +106,8 @@ namespace TestCaseGenerator
                 writer.WriteLine("{");
                 writer.WriteLine("    public class TestMethods");
                 writer.WriteLine("    {");
-                // For each extracted method, write a corresponding test method
-                foreach (var method in classModel.Methods)
-                {
-
-                    string arguments = method.Arguments.Any() ? string.Join(", ", method.Arguments.Select(x => x.ArgumentName)) : string.Empty;
-                    // Write the test method using the extracted information
-                    writer.WriteLine("        [Fact]");
-                    writer.WriteLine("        public void " + method.MethodName + "Test()");
-                    writer.WriteLine("        {");
-                    writer.WriteLine("            // Arrange");
-
-                    // TODO: Add code for arranging the test inputs
-                    writer.WriteLine("            // Act");
-                    writer.WriteLine("            var result = " + method.MethodName + "(" + arguments + ");");
-
-                    writer.WriteLine("            // Assert");
-                    // TODO: Add code for asserting the expected results
-                    writer.WriteLine("        }");
-                    writer.WriteLine("");
-                }
+                writer.WriteLine(GenerateUnitTestMethod(classModel.Methods));
+                
                 writer.WriteLine("    }");
                 writer.WriteLine("}");
                 writer.WriteLine("\n");
@@ -128,6 +115,67 @@ namespace TestCaseGenerator
             }
             return isGenerated;
 
+        }
+
+
+        private static string GenerateUnitTestMethod(List<MethodModel> methodModels)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var method in methodModels)
+            {
+                string responseName = "response";
+
+                sb.AppendLine("        [Fact]");
+                sb.AppendLine("        public void " + method.MethodName + "Test()");
+                sb.AppendLine("        {");
+                // Area to Arrange the test variables.
+                if (method.Arguments != null && method.Arguments.Any())
+                {
+                    sb.AppendLine(GetArrangeContents(method.Arguments, 10));
+                }
+                // Area to make the Act contents.
+                sb.AppendLine(GetActContents(responseName, method.MethodName, method.Arguments, 10));
+                // Area to set the Asserts based on conditions.
+                sb.AppendLine(GetAssertContents(responseName, 10));
+                sb.AppendLine("        }\n");
+            }
+            return sb.ToString();
+        }
+
+        private static string GetArrangeContents(List<ArgumentModel> arguments, int noOfRightPadding = 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}// Arrange\n", "".PadRight(noOfRightPadding));
+            foreach (var argument in arguments)
+            {
+                //sb.AppendFormat("{0}{1} {2} = null;{3}", startingSpaces, argument.ArgumentType, argument.ArgumentName, Environment.NewLine);
+                sb.AppendFormat("{0}{1} {2};\n", "".PadRight(noOfRightPadding), argument.ArgumentType, argument.ArgumentName);
+            }
+
+            return sb.ToString();
+        }
+
+        private static string GetAssertContents(string responseName, int noOfRightPadding = 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}// Assert\n", "".PadRight(noOfRightPadding));
+
+            // need to handle this asserts based on arguments and test case types. temporarly created this asserts for testing.
+            sb.AppendFormat("{0}Assert.NotNull({1});\n", "".PadRight(noOfRightPadding), responseName);
+            sb.AppendFormat("{0}Assert.Equal(StatusCodes.Status400BadRequest, {1}.StatusCode);\n", "".PadRight(noOfRightPadding), responseName);
+            sb.AppendFormat("{0}Assert.NotNull({1}.Value);", "".PadRight(noOfRightPadding), responseName);
+            return sb.ToString();
+        }
+
+        private static string GetActContents(string responseName, string methodName, List<ArgumentModel> argumentList, int noOfRightPadding = 0)
+        {
+            string arguments = argumentList.Any() ? string.Join(", ", argumentList.Select(x => x.ArgumentName)) : string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}// Act\n", "".PadRight(noOfRightPadding));
+
+            sb.AppendFormat("{0}var {1} = {2}({3});\n", "".PadRight(noOfRightPadding), responseName, methodName, arguments);
+            return sb.ToString();
         }
 
         private static TestClassModel GetTestClassModel(string filePath)
