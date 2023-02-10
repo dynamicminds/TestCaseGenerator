@@ -32,7 +32,18 @@ namespace TestCaseGenerator
             openFileDialog1.ShowDialog();
             this.textBox1.Text = openFileDialog1.FileName;
 
-            UnitTestGenerator.GenerateUnitTests(this.textBox1.Text);
+            //UnitTestGenerator.GenerateUnitTests(this.textBox1.Text);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            UnitTestGenerator.GenerateUnitTests(this.textBox1.Text, this.textBox2.Text, this.textBox3.Text);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            this.textBox2.Text = folderBrowserDialog1.SelectedPath;
         }
     }
 }

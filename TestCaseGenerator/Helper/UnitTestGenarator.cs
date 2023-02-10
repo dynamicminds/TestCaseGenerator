@@ -13,7 +13,7 @@ namespace TestCaseGenerator
 {
     public static class UnitTestGenerator
     {
-        public static void GenerateUnitTests(string filePath)
+        public static void GenerateUnitTests(string filePath, string destinationPath, string testFileName)
         {
             
             // Read the contents of the file
@@ -28,10 +28,10 @@ namespace TestCaseGenerator
             var classModel = GetAllMethods(fileName.Replace(".cs", ""), methods);
 
             // Path to generate the txt file.
-            var unitTestsContentsPath = System.AppDomain.CurrentDomain.BaseDirectory
-                .Replace("\\bin", "")
-                .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.txt");
-
+            //var unitTestsContentsPath = System.AppDomain.CurrentDomain.BaseDirectory
+            //    .Replace("\\bin", "")
+            //    .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.txt");
+            var unitTestsContentsPath = destinationPath + "\\" + testFileName + ".txt";
             // Generate the json object txt file from basic class model. which can be utilized for further operations.
             GenerateFileWithData(unitTestsContentsPath, classModel);
 
@@ -39,10 +39,10 @@ namespace TestCaseGenerator
             var testFileObject = GetTestClassModel(unitTestsContentsPath);
 
             // Path to generate Unit Test file.
-            var unitTestsFilePath = System.AppDomain.CurrentDomain.BaseDirectory
-                .Replace("\\bin", "")
-                .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.cs");
-
+            //var unitTestsFilePath = System.AppDomain.CurrentDomain.BaseDirectory
+            //    .Replace("\\bin", "")
+            //    .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.cs");
+            var unitTestsFilePath = destinationPath + "\\"  + testFileName + ".cs";
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
 
