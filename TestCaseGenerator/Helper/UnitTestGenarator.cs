@@ -12,6 +12,10 @@ using TestCaseGenerator.Constants;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
+using System.Security.Cryptography;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
+using System.Runtime.Serialization;
 
 namespace TestCaseGenerator
 {
@@ -41,10 +45,10 @@ namespace TestCaseGenerator
                  },
                 OutputFileName = "EmployeeControllerTest.cs",
                 OutputPath = "d:\\xyz\\",
-                ReferencedClassNames = new List<string>
-                 {
-                    "IEmployeeService"
-                 }
+                ReferencedClassNames = new List<DataType>
+                {
+
+                }
             };
         }
 
@@ -94,34 +98,17 @@ namespace TestCaseGenerator
     {
         public static void GenerateUnitTests(string filePath, string destinationPath, string testFileName)
         {
-           // TryIt(filePath);
-
-            // Read the contents of the file
-            var fileContents = File.ReadAllText(filePath);
-
-            // Extract the methods and their logic
-            var methodRegex = new Regex(@"public\s+async\s+Task<IActionResult>\s+(?<methodName>\w+)\((?<arguments>.*)");
-            var methods = methodRegex.Matches(fileContents);
-            var fileName = Path.GetFileName(filePath);
-
-            // Read and get all the methods from MatchCollection.
-            var classModel = GetAllMethods(fileName.Replace(".cs", ""), methods);
+            var fileParameters = ParseClassFile(filePath);
 
             // Path to generate the txt file.
-            //var unitTestsContentsPath = System.AppDomain.CurrentDomain.BaseDirectory
-            //    .Replace("\\bin", "")
-            //    .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.txt");
             var unitTestsContentsPath = destinationPath + "\\" + testFileName + ".txt";
             // Generate the json object txt file from basic class model. which can be utilized for further operations.
-            GenerateFileWithData(unitTestsContentsPath, classModel);
+            GenerateFileWithData(unitTestsContentsPath, fileParameters);
 
             // Read the text file and get the basic class model object.
             var testFileObject = GetTestClassModel(unitTestsContentsPath);
 
             // Path to generate Unit Test file.
-            //var unitTestsFilePath = System.AppDomain.CurrentDomain.BaseDirectory
-            //    .Replace("\\bin", "")
-            //    .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.cs");
             var unitTestsFilePath = destinationPath + "\\" + testFileName + ".cs";
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
@@ -129,34 +116,87 @@ namespace TestCaseGenerator
 
 
         }
-        private static string TryIt(string csFilePath)
+        private static FileParamters ParseClassFile(string csFilePath)
         {
-            var output = new Dictionary<string, string>();
+            FileParamters fileParameters = new FileParamters() { ReferencedClassNames = new List<DataType>(), methodParameters = new List<MethodParameters>() };
 
             var csFileContent = File.ReadAllText(csFilePath);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(csFileContent);
             CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
             var nds = (NamespaceDeclarationSyntax)root.Members[0];
             var cds = (ClassDeclarationSyntax)nds.Members[0];
+            string catchPattern = @"catch\s\(\s*(.*?)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\)\s*\{(.*?)\}";
+
+            //Class Name
+            fileParameters.ClassName = cds.Identifier.ValueText;
 
             foreach (var ds in cds.Members)
             {
+                MethodParameters methodParameter = new MethodParameters() { Signature = new List<DataType>(), Exceptions = new List<DataType>() };
                 //Only take methods into consideration
                 if (ds is MethodDeclarationSyntax)
                 {
                     var mds = (MethodDeclarationSyntax)ds;
 
-                    //Method name
-                    var methodName = ((SyntaxToken)mds.Identifier).ValueText;
+                    //Method Name
+                    methodParameter.Name = ((SyntaxToken)mds.Identifier).ValueText;
+
+                    //Method Return Type
+                    string returnType = ((GenericNameSyntax)mds.ReturnType).TypeArgumentList.Arguments.ToFullString();
+                    methodParameter.ReturnValue = new DataType() { Name = returnType };
+
+                    //Method Signatures
+                    string signetures = mds.ParameterList.Parameters.ToFullString();
+                    foreach (var signature in signetures?.Split(','))
+                    {
+                        var argWithDataType = RemoveBetween(signature, "[", "]").Replace("[]", "").Trim().Split(' ');
+                        if (argWithDataType.Length > 1)
+                        {
+                            DataType signatureDataType = new DataType() { Type = argWithDataType[0], Name = argWithDataType[1].TrimEnd(')') };
+                            methodParameter.Signature.Add(signatureDataType);
+                        }
+                    }
 
                     //Method body (including curly braces)
                     var methodBody = mds.Body.ToString();
 
-                    output.Add(methodName, methodBody);
+                    //Method Catch/Exception Names.
+                    MatchCollection catchMatches = Regex.Matches(methodBody, catchPattern, RegexOptions.Singleline);
+                    foreach (Match catchBlock in catchMatches)
+                    {
+                        //TODO : need to refactor this split logic.
+                        string[] separator = { "catch (" };
+                        var exceptionName = catchBlock.Value.Split(separator, System.StringSplitOptions.RemoveEmptyEntries)[0].Split(' ')[0];
+                        DataType exceptionDataType = new DataType() { Type = exceptionName, Name = exceptionName };
+                        methodParameter.Exceptions.Add(exceptionDataType);
+                    }
+                    fileParameters.methodParameters.Add(methodParameter);
                 }
-            }
+                if (ds is ConstructorDeclarationSyntax)
+                {
 
-            return "";
+                    var constructorDeclaration = (ConstructorDeclarationSyntax)ds;
+                    string signetures = constructorDeclaration.ParameterList.Parameters.ToFullString();
+                    string[] separator = { ",\r\n" };
+                    foreach (var signature in signetures?.Split(separator, System.StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var constructorParameters = signature.Trim(' ').Split(' ');
+                        DataType dataType = new DataType() { Name = constructorParameters[1], Type = constructorParameters[0] };
+                        fileParameters.ReferencedClassNames.Add(dataType);
+                    }
+                }
+                //TODO : USe the below documentation to get the catch blocks without regex.
+                // https://learn.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.csharp.syntax.catchclausesyntax?view=roslyn-dotnet
+                //TODO: we can do some RND to get the parameter/signature types directly.
+                //var parameters = mds.ParameterList.Parameters;
+                //foreach (var parameter in parameters)
+                //{
+                //    var parameterType = parameter.Type;
+                //    var parameterName = ((SyntaxToken)parameter.Identifier).ValueText;
+                //}
+
+            }
+            return fileParameters;
         }
         public static string RemoveBetween(string sourceString, string startTag, string endTag)
         {
@@ -164,39 +204,12 @@ namespace TestCaseGenerator
             return regex.Replace(sourceString, startTag + endTag);
         }
 
-        private static TestClassModel GetAllMethods(string className, MatchCollection methods)
-        {
-            var classModel = new TestClassModel() { ClassName = className, Methods = new List<MethodModel>() };
-
-            foreach (Match method in methods)
-            {
-                var returnType = method.Groups["returnType"].Value;
-                var methodName = method.Groups["methodName"].Value;
-                var arguments = method.Groups["arguments"].Value;
-                MethodModel methodModel = new MethodModel();
-                methodModel.ReturnType = returnType;
-                methodModel.MethodName = methodName;
-                methodModel.Arguments = new List<ArgumentModel>();
-                foreach (var arg in arguments.Split(','))
-                {
-                    var argWithDataType = RemoveBetween(arg, "[", "]").Replace("[]", "").Trim().Split(' ');
-                    if (argWithDataType.Length > 1)
-                    {
-                        ArgumentModel argumentModel = new ArgumentModel() { ArgumentType = argWithDataType[0], ArgumentName = argWithDataType[1].TrimEnd(')') };
-                        methodModel.Arguments.Add(argumentModel);
-                    }
-                }
-
-                classModel.Methods.Add(methodModel);
-            }
-            return classModel;
-        }
-        private static bool GenerateFileWithData(string filePath, TestClassModel classModel)
+        private static bool GenerateFileWithData(string filePath, FileParamters dataModel)
         {
             bool isGenerated = false;
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                string jsonString = JsonConvert.SerializeObject(classModel);
+                string jsonString = JsonConvert.SerializeObject(dataModel);
                 writer.WriteLine(jsonString);
                 writer.WriteLine("\n");
                 isGenerated = true;
@@ -205,19 +218,22 @@ namespace TestCaseGenerator
 
         }
 
-        private static bool GenerateUnitTestTemplate(string filePath, TestClassModel classModel)
+        private static bool GenerateUnitTestTemplate(string filePath, FileParamters fileParamters)
         {
             bool isGenerated = false;
+            string testClassName = fileParamters.ClassName + "Tests";
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                writer.WriteLine("using Xunit;");
+                writer.WriteLine(GenerateUnitTestNameSpaces());
                 writer.WriteLine("namespace UnitTestGenerator");
                 writer.WriteLine("{");
-                writer.WriteLine("    public class TestMethods");
-                writer.WriteLine("    {");
-                writer.WriteLine(GenerateUnitTestMethod(classModel.Methods));
-                
-                writer.WriteLine("    }");
+                writer.WriteLine("   public class " + testClassName);
+                writer.WriteLine("   {");
+                writer.WriteLine(GenerateUnitTestVariables(fileParamters.ReferencedClassNames, fileParamters.ClassName, 7));
+                writer.WriteLine(GenerateUnitTestConstructor(fileParamters.ReferencedClassNames, testClassName, 7));
+                writer.WriteLine(GenerateUnitTestMethods(fileParamters.methodParameters));
+                writer.WriteLine("   }");
+
                 writer.WriteLine("}");
                 writer.WriteLine("\n");
                 isGenerated = true;
@@ -226,73 +242,217 @@ namespace TestCaseGenerator
 
         }
 
-
-        private static string GenerateUnitTestMethod(List<MethodModel> methodModels)
+        private static string GenerateUnitTestConstructor(List<DataType> constructorParameters, string testClassName, int noOfRightPadding = 0)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var method in methodModels)
-            {
-                string responseName = "response";
+            sb.AppendFormat("{0}public {1}()\n", "".PadRight(noOfRightPadding), testClassName);
+            sb.AppendFormat("{0}{{\n", "".PadRight(noOfRightPadding));
+            sb.AppendFormat(" {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), testClassName.DoCamelCase(), testClassName);
 
-                sb.AppendLine("        [Fact]");
-                sb.AppendLine("        public void " + method.MethodName + "Test()");
-                sb.AppendLine("        {");
-                // Area to Arrange the test variables.
-                if (method.Arguments != null && method.Arguments.Any())
+            string mockObjectParameters = string.Empty;
+            foreach (var parameter in constructorParameters)
+            {
+                mockObjectParameters += string.Format("this.mock{0}.Object, ", parameter.Name.DoCamelCase(false));
+            }
+            sb.AppendFormat("{0});\n", mockObjectParameters.Trim().TrimEnd(','));
+            sb.AppendFormat("{0}}}\n", "".PadRight(noOfRightPadding));
+            return sb.ToString();
+        }
+        private static string GenerateUnitTestVariables(List<DataType> constructorParameters, string className, int noOfRightPadding = 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}private readonly {1} {2};\n", "".PadRight(noOfRightPadding), className, className.DoCamelCase());
+
+            foreach (var parameter in constructorParameters)
+            {
+                // sb.AppendLine("private readonly Mock<IDocumentDbRepository<PlatformUser>> mockPlatformUserRepository = new Mock<IDocumentDbRepository<PlatformUser>>();");
+                sb.AppendFormat("{0}private readonly Mock<{1}> mock{2} = new Mock<{1}>();\n", "".PadRight(noOfRightPadding), parameter.Type, parameter.Name.DoCamelCase(false));
+            }
+            return sb.ToString();
+        }
+
+
+        public static string GenerateUnitTestNameSpaces()
+        {
+            StringBuilder sb = new StringBuilder();
+            //TODO: Include all the possible namespaces dynamically here.
+            sb.AppendLine("using Xunit;");
+            return sb.ToString();
+        }
+        public static string GenerateUnitTestMethodName(string methodName, string exceptionName)
+        {
+            string testMethodName = "";
+            if (exceptionName != null)
+            {
+                testMethodName = string.Format("{0}_Returns{1}Test", methodName, exceptionName);
+            }
+            else
+            {
+                testMethodName = string.Format("{0}_OkObjectResultTest", methodName);
+            }
+            return testMethodName;
+        }
+
+        private static string GenerateUnitTestMethods(List<MethodParameters> methodParameters)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var method in methodParameters)
+            {
+                if (method.Exceptions.Any())
                 {
-                    sb.AppendLine(GetArrangeContents(method.Arguments, 10));
+                    foreach (var exception in method.Exceptions)
+                    {
+                        sb.AppendLine(GenerateUnitTestMethod(method, exception.Name));
+                    }
                 }
-                // Area to make the Act contents.
-                sb.AppendLine(GetActContents(responseName, method.MethodName, method.Arguments, 10));
-                // Area to set the Asserts based on conditions.
-                sb.AppendLine(GetAssertContents(responseName, 10));
-                sb.AppendLine("        }\n");
+
+                sb.AppendLine(GenerateUnitTestMethod(method));
             }
             return sb.ToString();
         }
 
-        private static string GetArrangeContents(List<ArgumentModel> arguments, int noOfRightPadding = 0)
+        private static string GenerateUnitTestMethod(MethodParameters method, string exceptionName = null)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("{0}// Arrange\n", "".PadRight(noOfRightPadding));
-            foreach (var argument in arguments)
+
+            sb.AppendLine("        [Fact]");
+            sb.AppendLine("        public void " + GenerateUnitTestMethodName(method.Name, exceptionName) + "()");
+            sb.AppendLine("        {");
+            // Area to Arrange the test variables.
+            if (method.Signature != null && method.Signature.Any())
             {
-                //sb.AppendFormat("{0}{1} {2} = null;{3}", startingSpaces, argument.ArgumentType, argument.ArgumentName, Environment.NewLine);
-                sb.AppendFormat("{0}{1} {2};\n", "".PadRight(noOfRightPadding), argument.ArgumentType, argument.ArgumentName);
+                sb.AppendLine(GenerateUnitTestArrangeValues(method.Signature, 10));
             }
+            // Area to make the Act contents.
+            sb.AppendLine(GetActContents(method.Name, method.Signature, 10));
+            // Area to set the Asserts based on conditions.
+            sb.AppendLine(GenerateUnitTestAssertValues(exceptionName, 10));
+            sb.AppendLine("        }\n");
 
             return sb.ToString();
         }
 
-        private static string GetAssertContents(string responseName, int noOfRightPadding = 0)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("{0}// Assert\n", "".PadRight(noOfRightPadding));
 
-            // need to handle this asserts based on arguments and test case types. temporarly created this asserts for testing.
-            sb.AppendFormat("{0}Assert.NotNull({1});\n", "".PadRight(noOfRightPadding), responseName);
-            sb.AppendFormat("{0}Assert.Equal(StatusCodes.Status400BadRequest, {1}.StatusCode);\n", "".PadRight(noOfRightPadding), responseName);
-            sb.AppendFormat("{0}Assert.NotNull({1}.Value);", "".PadRight(noOfRightPadding), responseName);
-            return sb.ToString();
-        }
-
-        private static string GetActContents(string responseName, string methodName, List<ArgumentModel> argumentList, int noOfRightPadding = 0)
+        private static string GetActContents(string methodName, List<DataType> signatureList, int noOfRightPadding = 0)
         {
-            string arguments = argumentList.Any() ? string.Join(", ", argumentList.Select(x => x.ArgumentName)) : string.Empty;
+            string arguments = signatureList.Any() ? string.Join(", ", signatureList.Select(x => x.Name)) : string.Empty;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}// Act\n", "".PadRight(noOfRightPadding));
 
-            sb.AppendFormat("{0}var {1} = {2}({3});\n", "".PadRight(noOfRightPadding), responseName, methodName, arguments);
+            sb.AppendFormat("{0}var response = {1}({2});\n", "".PadRight(noOfRightPadding), methodName, arguments);
             return sb.ToString();
         }
 
-        private static TestClassModel GetTestClassModel(string filePath)
+        private static string GenerateUnitTestArrangeValues(List<DataType> arguments, int noOfRightPadding = 0)
+        {
+            var systemDataTypes = GetAllPrimitiveTypes();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}// Arrange\n", "".PadRight(noOfRightPadding));
+            foreach (var argument in arguments)
+            {
+                object argumentDefaultValue = GetDefaultValue(systemDataTypes, argument.Type.ToLower());
+                sb.AppendFormat("{0}{1} {2} = {3};\n", "".PadRight(noOfRightPadding), argument.Type, argument.Name, argumentDefaultValue.ToDirectString());
+            }
+
+            return sb.ToString();
+        }
+
+
+        private static string GenerateUnitTestAssertValues(string exceptionName,int noOfRightPadding = 0)
+        {
+           
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}// Assert\n", "".PadRight(noOfRightPadding));
+
+            // need to handle this asserts based on arguments and test case types. temporarly created this asserts for testing.
+            sb.AppendFormat("{0}Assert.NotNull(response);\n", "".PadRight(noOfRightPadding));
+            sb.AppendFormat("{0}Assert.NotNull(response.Value);\n", "".PadRight(noOfRightPadding));
+            if (!string.IsNullOrEmpty(exceptionName))
+            {
+                var allExceptionStatusCodes = GetAllExceptionCodes();
+                object exceptionStatusCode = GetDefaultValue(allExceptionStatusCodes, exceptionName);
+                sb.AppendFormat("{0}Assert.Equal(StatusCodes.{1}, (response as StatusCodeResult)?.StatusCode);\n", "".PadRight(noOfRightPadding), exceptionStatusCode);
+                sb.AppendFormat("{0}Assert.IsType<{1}>(response);", "".PadRight(noOfRightPadding), exceptionName);
+
+            }
+            else
+            {
+                sb.AppendFormat("{0}Assert.IsType<OkObjectResult>(response);", "".PadRight(noOfRightPadding));
+            }
+            return sb.ToString();
+        }
+
+        private static FileParamters GetTestClassModel(string filePath)
         {
             string fileContents = File.ReadAllText(filePath);
-            var testClassModel = JsonConvert.DeserializeObject<TestClassModel>(fileContents);
+            var testClassModel = JsonConvert.DeserializeObject<FileParamters>(fileContents);
             return testClassModel;
 
+        }
+
+        public static object GetDefaultValue(this Type t)
+        {
+            if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+                return Activator.CreateInstance(t);
+            else
+                return null;
+        }
+        public static object GetDefaultValue(IDictionary<string, Type> dictionary, string key)
+        {
+            return dictionary.TryGetValue(key, out var value) ? GetDefaultValue(value) : null;
+        }
+        public static object GetDefaultValue(IDictionary<string, string> dictionary, string key)
+        {
+            return dictionary.TryGetValue(key, out var value) ? value : null;
+        }
+        static string ToDirectString(this object Value)
+        {
+
+            return Value == null ? "null" : Value.ToString();
+
+        }
+
+        public static string DoCamelCase(this string s, bool isCamelCase = true)
+        {
+            if (String.IsNullOrEmpty(s))
+                return s;
+            if (s.Length == 1)
+                return s.ToUpper();
+            return (isCamelCase ? s.Remove(1).ToLower() : s.Remove(1).ToUpper()) + s.Substring(1);
+        }
+        private static Dictionary<string, Type> GetAllPrimitiveTypes()
+        {
+            Dictionary<string, Type> aliases = new Dictionary<string, Type>();
+            aliases["byte"] = typeof(byte);
+            aliases["sbyte"] = typeof(sbyte);
+            aliases["short"] = typeof(short);
+            aliases["ushort"] = typeof(ushort);
+            aliases["int"] = typeof(int);
+            aliases["uint"] = typeof(uint);
+            aliases["long"] = typeof(long);
+            aliases["ulong"] = typeof(ulong);
+            aliases["char"] = typeof(char);
+            aliases["float"] = typeof(float);
+            aliases["double"] = typeof(double);
+            aliases["decimal"] = typeof(decimal);
+            aliases["bool"] = typeof(bool);
+            aliases["object"] = typeof(object);
+            aliases["string"] = typeof(string);
+
+            return aliases;
+        }
+        private static Dictionary<string, string> GetAllExceptionCodes()
+        {
+            Dictionary<string, string> aliases = new Dictionary<string, string>();
+            aliases["ArgumentException"] = "Status400BadRequest";
+            aliases["ArgumentNullException"] = "Status400BadRequest";
+            aliases["InvalidOperationException"] = "Status400BadRequest";
+            aliases["ObjectNotFoundException"] = "Status404NotFound";
+            aliases["Exception"] = "Status500InternalServerError";
+
+            return aliases;
         }
     }
 }
