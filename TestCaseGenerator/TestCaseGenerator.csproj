@@ -50,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants\DataType.cs" />
+    <Compile Include="Constants\FileParamters.cs" />
+    <Compile Include="Constants\MethodParameters.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

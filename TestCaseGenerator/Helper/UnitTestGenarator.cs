@@ -8,9 +8,78 @@ using Newtonsoft.Json;
 using System.Linq;
 using System;
 using System.Text;
+using TestCaseGenerator.Constants;
 
 namespace TestCaseGenerator
 {
+    public class TestGenerator
+    {
+        public FileParamters fileParameters;
+
+        public void GenerateDummyFileParameters()
+        {
+            fileParameters = new FileParamters()
+            {
+                InputFileName = "EmployeeController.cs",
+                InputPath = "d:\\xyz\\",
+                methodParameters = new List<MethodParameters>
+                 {
+                     new MethodParameters
+                     {
+                         Name = "GetEmployee",
+                         Signature = new DataType
+                         {
+                             name = "employeeId",
+                             type = "string"
+                         }
+                     }
+                 },
+                OutputFileName = "EmployeeControllerTest.cs",
+                OutputPath = "d:\\xyz\\",
+                ReferencedClassNames = new List<string>
+                 {
+                    "IEmployeeService"
+                 }
+            };
+        }
+
+        public static void ReadInputFile()
+        {
+            // Read file and at update fileParameters
+        }
+
+        public void ReadClassConstructor()
+        {
+            // Read class constructor and extract class references and store in ReferencedClassNames
+        }
+
+        public string GenerateUnitTestConstructor()
+        {
+            // Generate constructor and initialised Controller class and ReferencedClassName
+        }
+
+        public string GenerateUnitTestMethodName()
+        {
+            // Read FileParameters methodName + "_Returns" + ExceptionName
+        }
+
+        public string GenerateUnitTestAssertValues()
+        {
+
+        }
+
+        public string GenerateUnitTestActValues()
+        {
+            // Generate 
+        }
+
+        public static void WriteInputFile()
+        {
+            // Write file to output path+filename
+        }
+    }
+
+
     public static class UnitTestGenerator
     {
         public static void GenerateUnitTests(string filePath, string destinationPath, string testFileName)
