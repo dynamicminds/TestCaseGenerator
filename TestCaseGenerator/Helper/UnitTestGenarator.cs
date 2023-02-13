@@ -94,7 +94,7 @@ namespace TestCaseGenerator
     {
         public static void GenerateUnitTests(string filePath, string destinationPath, string testFileName)
         {
-           // TryIt(filePath);
+            TryIt(filePath);
 
             // Read the contents of the file
             var fileContents = File.ReadAllText(filePath);
@@ -131,13 +131,14 @@ namespace TestCaseGenerator
         }
         private static string TryIt(string csFilePath)
         {
-            var output = new Dictionary<string, string>();
+            var output = new Dictionary<string, MatchCollection>();
 
             var csFileContent = File.ReadAllText(csFilePath);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(csFileContent);
             CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
             var nds = (NamespaceDeclarationSyntax)root.Members[0];
             var cds = (ClassDeclarationSyntax)nds.Members[0];
+            string catchPattern = @"catch\s\(\s*(.*?)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\)\s*\{(.*?)\}";
 
             foreach (var ds in cds.Members)
             {
@@ -151,8 +152,9 @@ namespace TestCaseGenerator
 
                     //Method body (including curly braces)
                     var methodBody = mds.Body.ToString();
+                    MatchCollection catchMatches = Regex.Matches(methodBody, catchPattern, RegexOptions.Singleline);
 
-                    output.Add(methodName, methodBody);
+                    output.Add(methodName, catchMatches);
                 }
             }
 
