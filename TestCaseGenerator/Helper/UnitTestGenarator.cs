@@ -9,6 +9,9 @@ using System.Linq;
 using System;
 using System.Text;
 using TestCaseGenerator.Constants;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 
 namespace TestCaseGenerator
 {
@@ -55,30 +58,30 @@ namespace TestCaseGenerator
             // Read class constructor and extract class references and store in ReferencedClassNames
         }
 
-        public string GenerateUnitTestConstructor()
-        {
-            // Generate constructor and initialised Controller class and ReferencedClassName
-        }
+        //public string GenerateUnitTestConstructor()
+        //{
+        //    // Generate constructor and initialised Controller class and ReferencedClassName
+        //}
 
-        public string GenerateUnitTestMethodName()
-        {
-            // Read FileParameters methodName + "_Returns" + ExceptionName
-        }
+        //public string GenerateUnitTestMethodName()
+        //{
+        //    // Read FileParameters methodName + "_Returns" + ExceptionName
+        //}
 
-        public string GenerateUnitTestArrangeValues()
-        {
+        //public string GenerateUnitTestArrangeValues()
+        //{
 
-        }
+        //}
 
-        public string GenerateUnitTestAssertValues()
-        {
+        //public string GenerateUnitTestAssertValues()
+        //{
 
-        }
+        //}
 
-        public string GenerateUnitTestActValues()
-        {
-            // Generate 
-        }
+        //public string GenerateUnitTestActValues()
+        //{
+        //    // Generate 
+        //}
 
         public static void WriteInputFile()
         {
@@ -91,7 +94,8 @@ namespace TestCaseGenerator
     {
         public static void GenerateUnitTests(string filePath, string destinationPath, string testFileName)
         {
-            
+           // TryIt(filePath);
+
             // Read the contents of the file
             var fileContents = File.ReadAllText(filePath);
 
@@ -118,12 +122,41 @@ namespace TestCaseGenerator
             //var unitTestsFilePath = System.AppDomain.CurrentDomain.BaseDirectory
             //    .Replace("\\bin", "")
             //    .Replace("\\Debug", "") + "UnitTestFiles\\" + fileName.Replace(".cs", "Test.cs");
-            var unitTestsFilePath = destinationPath + "\\"  + testFileName + ".cs";
+            var unitTestsFilePath = destinationPath + "\\" + testFileName + ".cs";
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
 
 
 
+        }
+        private static string TryIt(string csFilePath)
+        {
+            var output = new Dictionary<string, string>();
+
+            var csFileContent = File.ReadAllText(csFilePath);
+            SyntaxTree tree = CSharpSyntaxTree.ParseText(csFileContent);
+            CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
+            var nds = (NamespaceDeclarationSyntax)root.Members[0];
+            var cds = (ClassDeclarationSyntax)nds.Members[0];
+
+            foreach (var ds in cds.Members)
+            {
+                //Only take methods into consideration
+                if (ds is MethodDeclarationSyntax)
+                {
+                    var mds = (MethodDeclarationSyntax)ds;
+
+                    //Method name
+                    var methodName = ((SyntaxToken)mds.Identifier).ValueText;
+
+                    //Method body (including curly braces)
+                    var methodBody = mds.Body.ToString();
+
+                    output.Add(methodName, methodBody);
+                }
+            }
+
+            return "";
         }
         public static string RemoveBetween(string sourceString, string startTag, string endTag)
         {
