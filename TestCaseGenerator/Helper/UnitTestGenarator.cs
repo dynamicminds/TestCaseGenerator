@@ -27,10 +27,12 @@ namespace TestCaseGenerator
                      new MethodParameters
                      {
                          Name = "GetEmployee",
-                         Signature = new DataType
-                         {
-                             name = "employeeId",
-                             type = "string"
+                         Signature = new List<DataType>
+                         { new DataType
+                            {
+                             Name = "employeeId",
+                             Type = "string"
+                            }
                          }
                      }
                  },
@@ -61,6 +63,11 @@ namespace TestCaseGenerator
         public string GenerateUnitTestMethodName()
         {
             // Read FileParameters methodName + "_Returns" + ExceptionName
+        }
+
+        public string GenerateUnitTestArrangeValues()
+        {
+
         }
 
         public string GenerateUnitTestAssertValues()

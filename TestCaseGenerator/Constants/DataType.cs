@@ -8,7 +8,7 @@ namespace TestCaseGenerator.Constants
 {
     public class DataType
     {
-        public string type { get; set; }
-        public string name { get; set; }
+        public string Type { get; set; }
+        public string Name { get; set; }
     }
 }
