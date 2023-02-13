@@ -9,16 +9,17 @@ using System.Linq;
 using System;
 using System.Text;
 using TestCaseGenerator.Constants;
+using System.Security.Cryptography;
 
 namespace TestCaseGenerator
 {
     public class TestGenerator
     {
-        public FileParamters fileParameters;
+        public FileParameters fileParameters;
 
-        public void GenerateDummyFileParameters()
+        public FileParameters GenerateDummyFileParameters()
         {
-            fileParameters = new FileParamters()
+            fileParameters = new FileParameters()
             {
                 InputFileName = "EmployeeController.cs",
                 InputPath = "d:\\xyz\\",
@@ -33,7 +34,30 @@ namespace TestCaseGenerator
                              Name = "employeeId",
                              Type = "string"
                             }
-                         }
+                         },
+                         Exceptions = new List<DataType>
+                         {
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "ArgumentException"
+                             },
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "ObjectNotFoundException"
+                             },
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "Exception"
+                             }
+                         },
+                         ReturnValue = new DataType
+                        {
+                            Name = "name",
+                            Type = "OkResult"
+                        }
                      }
                  },
                 OutputFileName = "EmployeeControllerTest.cs",
@@ -41,8 +65,11 @@ namespace TestCaseGenerator
                 ReferencedClassNames = new List<string>
                  {
                     "IEmployeeService"
-                 }
+                 },
+                ServiceClassName = "EmployeeService"
             };
+
+            return fileParameters;
         }
 
         public static void ReadInputFile()
@@ -50,34 +77,128 @@ namespace TestCaseGenerator
             // Read file and at update fileParameters
         }
 
-        public void ReadClassConstructor()
+        //public void ReadClassConstructor()
+        //{
+        //    // Read class constructor and extract class references and store in ReferencedClassNames
+        //}
+
+        //public string GenerateUnitTestConstructor()
+        //{
+        //    // Generate constructor and initialised Controller class and ReferencedClassName
+        //}
+
+        //public string GenerateUnitTestMethodName()
+        //{
+        //    // Read FileParameters methodName + "_Returns" + ExceptionName
+        //}
+
+        public string GenerateUnitTestArrangeValues(MethodParameters methodParameter, string returnName, string exceptionName, string serviceFile)
         {
-            // Read class constructor and extract class references and store in ReferencedClassNames
+            string variableName = "";
+            int ctr = methodParameter.Signature.Count();
+            foreach (var sign in methodParameter.Signature)
+            {
+                if (ctr == 1)
+                {
+                    variableName = sign.Name;
+                }
+                else
+                {
+                    variableName = variableName + ", " + sign.Name;
+
+                }
+            }
+
+            StringBuilder code = new StringBuilder();
+            code.AppendLine("\t\t[Fact]");
+            code.AppendLine("\t\tpublic async void " + methodParameter.Name + "_Returns" + exceptionName + "()");
+            code.AppendLine("\t\t{");
+            code.AppendLine("\t\t\t// Arrange");
+            foreach(var sign in methodParameter.Signature)
+            {
+                if (exceptionName == "ArgumentException")
+                {
+                    code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " +"= null;");
+                }
+                else
+                {
+                    if (sign.Type == "string")
+                    {
+                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " + "= " + "\"" + sign.Name.ToLower() + "\";");
+                    }
+                    else
+                    {
+                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " + "= " + "new" + sign.Type + "();");
+                    }
+                }
+            }
+
+            if( exceptionName != "ArgumentException")
+            {
+                code.AppendLine("\t\t\tmock" + serviceFile + ".Setup(service => service." + methodParameter.Name + "(" + variableName + ").Throws<" + exceptionName +">();");
+            }
+
+            return code.ToString();
         }
 
-        public string GenerateUnitTestConstructor()
+        public string GenerateUnitTestAssertValues(MethodParameters methodParamter, string returnName, string exceptionName)
         {
-            // Generate constructor and initialised Controller class and ReferencedClassName
+            StringBuilder code = new StringBuilder();
+            code.AppendLine("\t\t\t// Assert");
+            switch (exceptionName)
+            {
+                case "ArgumentException":
+                    code.AppendLine("\t\t\tAssert.Equal(StatusCodes.Status400BadRequest, responseObject.StatusCode);");
+                    break;
+                case "ObjectNotFoundException":
+                    code.AppendLine("\t\t\tAssert.Equal(StatusCodes.Status404NotFound, responseObject.StatusCode);");
+                    break;
+                case "Exception":
+                    code.AppendLine("\t\t\tAssert.Equal(StatusCodes.Status500InternalServerError, (responseObject as StatusCodeResult)?.StatusCode);");
+                    break;
+                default:
+                    code.AppendLine("\t\t\tAssert.IsType<OkObjectResult>(responseObject);");
+                    break;
+            }
+            code.AppendLine("\t\t}");
+            return code.ToString();
         }
 
-        public string GenerateUnitTestMethodName()
+        public string GenerateUnitTestActValues(MethodParameters methodParameter, string returnName, string exceptionName)
         {
-            // Read FileParameters methodName + "_Returns" + ExceptionName
-        }
+            string variableName = "";
+            int ctr = methodParameter.Signature.Count();
+            foreach (var sign in methodParameter.Signature)
+            {
+                if (ctr == 1)
+                {
+                    variableName = sign.Name;
+                }
+                else
+                {
+                    variableName = variableName + ", " + sign.Name;
 
-        public string GenerateUnitTestArrangeValues()
-        {
+                }
+            }
 
-        }
-
-        public string GenerateUnitTestAssertValues()
-        {
-
-        }
-
-        public string GenerateUnitTestActValues()
-        {
-            // Generate 
+            StringBuilder code = new StringBuilder();
+            code.AppendLine("\t\t\t// Act");
+            switch (exceptionName)
+            {
+                case "ArgumentException":
+                    code.AppendLine("\t\t\tvar responseObject = await this.controller." + methodParameter.Name + "(" + variableName + ") as ObjectResult;");
+                    break;
+                case "ObjectNotFoundException":
+                    code.AppendLine("\t\t\tvar responseObject = await this.controller." + methodParameter.Name + "(" + variableName + ") as ObjectResult;");
+                    break;
+                case "Exception":
+                    code.AppendLine("\t\t\tvar responseObject = await this.controller." + methodParameter.Name + "(" + variableName + ");");
+                    break;
+                default:
+                    code.AppendLine("\t\t\tvar responseObject = await this.controller." + methodParameter.Name + "(" + variableName + ");");
+                    break;
+            }
+            return code.ToString();
         }
 
         public static void WriteInputFile()
