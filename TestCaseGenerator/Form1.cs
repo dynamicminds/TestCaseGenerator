@@ -48,7 +48,14 @@ namespace TestCaseGenerator
             StringBuilder stringBuilder = new StringBuilder();
             int exceptionCtr = 0;
             int loopCtr = 0;
-
+            string testClassName = fileParameters.ClassName + "Tests";
+            stringBuilder.AppendLine(UnitTestGenerator.GenerateUnitTestNameSpaces());
+            stringBuilder.AppendLine("namespace UnitTestGenerator");
+            stringBuilder.AppendLine("{");
+            stringBuilder.AppendLine("   public class " + testClassName);
+            stringBuilder.AppendLine("   {");
+            stringBuilder.AppendLine(UnitTestGenerator.GenerateUnitTestVariables(fileParameters.ReferencedClassNames, fileParameters.ClassName, 7));
+            stringBuilder.AppendLine(UnitTestGenerator.GenerateUnitTestConstructor(fileParameters, testClassName, 7));
             foreach (var methodName in fileParameters.methodParameters)
             {
                 exceptionCtr = methodName.Exceptions.Count;
@@ -72,8 +79,11 @@ namespace TestCaseGenerator
                     stringBuilder.Append('\n');
                 }
             }
+            stringBuilder.AppendLine("   }");
+            stringBuilder.AppendLine("}");
+            stringBuilder.AppendLine("\n");
 
-           // stringBuilder.Append("// End of code");
+            // stringBuilder.Append("// End of code");
 
             var unitTestsContentsPath = this.textBox2.Text + "\\" + this.textBox3.Text + ".cs";
             using (StreamWriter writer = new StreamWriter(unitTestsContentsPath))

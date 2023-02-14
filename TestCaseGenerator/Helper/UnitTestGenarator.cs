@@ -363,12 +363,12 @@ namespace TestCaseGenerator
 
         }
 
-        private static string GenerateUnitTestConstructor(FileParameters fileParameters, string testClassName, int noOfRightPadding = 0)
+        public static string GenerateUnitTestConstructor(FileParameters fileParameters, string testClassName, int noOfRightPadding = 0)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}public {1}()\n", "".PadRight(noOfRightPadding), testClassName);
             sb.AppendFormat("{0}{{\n", "".PadRight(noOfRightPadding));
-            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), fileParameters.ClassName.DoCamelCase(), testClassName);
+            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), fileParameters.ClassName.DoCamelCase(), fileParameters.ClassName);
 
             string mockObjectParameters = string.Empty;
             foreach (var parameter in fileParameters.ReferencedClassNames)
@@ -379,7 +379,7 @@ namespace TestCaseGenerator
             sb.AppendFormat("{0}}}\n", "".PadRight(noOfRightPadding));
             return sb.ToString();
         }
-        private static string GenerateUnitTestVariables(List<DataType> constructorParameters, string className, int noOfRightPadding = 0)
+        public static string GenerateUnitTestVariables(List<DataType> constructorParameters, string className, int noOfRightPadding = 0)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}private readonly {1} {2};\n", "".PadRight(noOfRightPadding), className, className.DoCamelCase());
