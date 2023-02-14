@@ -68,9 +68,9 @@ namespace TestCaseGenerator
                  },
                 OutputFileName = "EmployeeControllerTest.cs",
                 OutputPath = "d:\\xyz\\",
-                ReferencedClassNames = new List<DataType>()
+                ReferencedClassNames = new List<DataType>
                  {
-                   // "IEmployeeService"
+                    new DataType {Name = "IEmployeeService", Type= "string"}
                  },
                 ClassName = "EmployeeService"
             };
@@ -236,9 +236,6 @@ namespace TestCaseGenerator
             var unitTestsFilePath = destinationPath + "\\" + testFileName + ".cs";
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
-
-
-
         }
         public static FileParameters ParseClassFile(string csFilePath)
         {
