@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -42,8 +43,9 @@ namespace TestCaseGenerator
             //UnitTestGenerator.GenerateUnitTests(this.textBox1.Text, this.textBox2.Text, this.textBox3.Text);
 
             TestGenerator testGenerator = new TestGenerator();
-            FileParameters fileParameters = testGenerator.GenerateDummyFileParameters();
-            StringBuilder stringBuilder= new StringBuilder();
+            //FileParameters fileParameters = testGenerator.GenerateDummyFileParameters();
+            FileParameters fileParameters = UnitTestGenerator.ParseClassFile(this.textBox1.Text);
+            StringBuilder stringBuilder = new StringBuilder();
             int exceptionCtr = 0;
             int loopCtr = 0;
 
@@ -72,7 +74,14 @@ namespace TestCaseGenerator
                 }
             }
 
-            stringBuilder.Append("// End of code");
+           // stringBuilder.Append("// End of code");
+
+            var unitTestsContentsPath = this.textBox2.Text + "\\" + this.textBox3.Text + ".cs";
+            using (StreamWriter writer = new StreamWriter(unitTestsContentsPath))
+            {
+                
+                writer.WriteLine(stringBuilder.ToString());
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
