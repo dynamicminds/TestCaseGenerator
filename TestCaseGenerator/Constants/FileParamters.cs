@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestCaseGenerator.Constants
 {
-    public class FileParamters
+    public class FileParameters
     {
         public string InputFileName { get; set; }
         public string OutputFileName { get; set; }
