@@ -240,7 +240,7 @@ namespace TestCaseGenerator
 
 
         }
-        private static FileParameters ParseClassFile(string csFilePath)
+        public static FileParameters ParseClassFile(string csFilePath)
         {
             FileParameters fileParameters = new FileParameters() { ReferencedClassNames = new List<DataType>(), methodParameters = new List<MethodParameters>() };
 
@@ -354,7 +354,7 @@ namespace TestCaseGenerator
                 writer.WriteLine("   public class " + testClassName);
                 writer.WriteLine("   {");
                 writer.WriteLine(GenerateUnitTestVariables(fileParamters.ReferencedClassNames, fileParamters.ClassName, 7));
-                writer.WriteLine(GenerateUnitTestConstructor(fileParamters.ReferencedClassNames, testClassName, 7));
+                writer.WriteLine(GenerateUnitTestConstructor(fileParamters, testClassName, 7));
                 writer.WriteLine(GenerateUnitTestMethods(fileParamters.methodParameters));
                 writer.WriteLine("   }");
 
@@ -366,15 +366,15 @@ namespace TestCaseGenerator
 
         }
 
-        private static string GenerateUnitTestConstructor(List<DataType> constructorParameters, string testClassName, int noOfRightPadding = 0)
+        private static string GenerateUnitTestConstructor(FileParameters fileParameters, string testClassName, int noOfRightPadding = 0)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}public {1}()\n", "".PadRight(noOfRightPadding), testClassName);
             sb.AppendFormat("{0}{{\n", "".PadRight(noOfRightPadding));
-            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), testClassName.DoCamelCase(), testClassName);
+            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), fileParameters.ClassName.DoCamelCase(), testClassName);
 
             string mockObjectParameters = string.Empty;
-            foreach (var parameter in constructorParameters)
+            foreach (var parameter in fileParameters.ReferencedClassNames)
             {
                 mockObjectParameters += string.Format("this.mock{0}.Object, ", parameter.Name.DoCamelCase(false));
             }
