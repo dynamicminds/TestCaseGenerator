@@ -100,6 +100,10 @@ namespace TestCaseGenerator
         {
             var fileParameters = ParseClassFile(filePath);
 
+            fileParameters.InputPath = filePath;
+            fileParameters.OutputPath = destinationPath;
+            fileParameters.OutputFileName = testFileName;
+
             // Path to generate the txt file.
             var unitTestsContentsPath = destinationPath + "\\" + testFileName + ".txt";
             // Generate the json object txt file from basic class model. which can be utilized for further operations.
@@ -247,7 +251,7 @@ namespace TestCaseGenerator
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}public {1}()\n", "".PadRight(noOfRightPadding), testClassName);
             sb.AppendFormat("{0}{{\n", "".PadRight(noOfRightPadding));
-            sb.AppendFormat(" {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), testClassName.DoCamelCase(), testClassName);
+            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), testClassName.DoCamelCase(), testClassName);
 
             string mockObjectParameters = string.Empty;
             foreach (var parameter in constructorParameters)
