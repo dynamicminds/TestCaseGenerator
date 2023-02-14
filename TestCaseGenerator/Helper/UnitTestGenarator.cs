@@ -68,9 +68,9 @@ namespace TestCaseGenerator
                  },
                 OutputFileName = "EmployeeControllerTest.cs",
                 OutputPath = "d:\\xyz\\",
-                ReferencedClassNames = new List<string>
+                ReferencedClassNames = new List<DataType>
                  {
-                    "IEmployeeService"
+                    new DataType {Name = "IEmployeeService", Type= "string"}
                  },
                 ServiceClassName = "EmployeeService"
             };
@@ -232,13 +232,10 @@ namespace TestCaseGenerator
             var unitTestsFilePath = destinationPath + "\\" + testFileName + ".cs";
             // To generate the unit test template
             GenerateUnitTestTemplate(unitTestsFilePath, testFileObject);
-
-
-
         }
-        private static FileParamters ParseClassFile(string csFilePath)
+        private static FileParameters ParseClassFile(string csFilePath)
         {
-            FileParamters fileParameters = new FileParamters() { ReferencedClassNames = new List<DataType>(), methodParameters = new List<MethodParameters>() };
+            FileParameters fileParameters = new FileParameters() { ReferencedClassNames = new List<DataType>(), methodParameters = new List<MethodParameters>() };
 
             var csFileContent = File.ReadAllText(csFilePath);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(csFileContent);
@@ -324,7 +321,7 @@ namespace TestCaseGenerator
             return regex.Replace(sourceString, startTag + endTag);
         }
 
-        private static bool GenerateFileWithData(string filePath, FileParamters dataModel)
+        private static bool GenerateFileWithData(string filePath, FileParameters dataModel)
         {
             bool isGenerated = false;
             using (StreamWriter writer = new StreamWriter(filePath))
@@ -338,7 +335,7 @@ namespace TestCaseGenerator
 
         }
 
-        private static bool GenerateUnitTestTemplate(string filePath, FileParamters fileParamters)
+        private static bool GenerateUnitTestTemplate(string filePath, FileParameters fileParamters)
         {
             bool isGenerated = false;
             string testClassName = fileParamters.ClassName + "Tests";
@@ -504,10 +501,10 @@ namespace TestCaseGenerator
             return sb.ToString();
         }
 
-        private static FileParamters GetTestClassModel(string filePath)
+        private static FileParameters GetTestClassModel(string filePath)
         {
             string fileContents = File.ReadAllText(filePath);
-            var testClassModel = JsonConvert.DeserializeObject<FileParamters>(fileContents);
+            var testClassModel = JsonConvert.DeserializeObject<FileParameters>(fileContents);
             return testClassModel;
 
         }
