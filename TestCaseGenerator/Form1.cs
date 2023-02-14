@@ -52,7 +52,7 @@ namespace TestCaseGenerator
                 exceptionCtr = methodName.Exceptions.Count;
                 foreach (var exception in methodName.Exceptions)
                 {
-                    stringBuilder.Append(testGenerator.GenerateUnitTestArrangeValues(methodName, methodName.ReturnValue.Type, exception.Type, fileParameters.ServiceClassName));
+                    stringBuilder.Append(testGenerator.GenerateUnitTestArrangeValues(methodName, methodName.ReturnValue.Type, exception.Type, fileParameters.ClassName));
                     stringBuilder.Append('\n');
                     stringBuilder.Append(testGenerator.GenerateUnitTestActValues(methodName, "return", exception.Type));
                     stringBuilder.Append('\n');
@@ -62,7 +62,7 @@ namespace TestCaseGenerator
                 }
                 if (loopCtr == exceptionCtr)
                 {
-                    stringBuilder.Append(testGenerator.GenerateUnitTestArrangeValues(methodName, methodName.ReturnValue.Type, "OkResult", fileParameters.ServiceClassName));
+                    stringBuilder.Append(testGenerator.GenerateUnitTestArrangeValues(methodName, methodName.ReturnValue.Type, "OkResult", fileParameters.ClassName));
                     stringBuilder.Append('\n');
                     stringBuilder.Append(testGenerator.GenerateUnitTestActValues(methodName, "return", "OkResult"));
                     stringBuilder.Append('\n');
