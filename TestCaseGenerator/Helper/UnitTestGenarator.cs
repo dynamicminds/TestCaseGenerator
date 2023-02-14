@@ -397,6 +397,8 @@ namespace TestCaseGenerator
         {
             StringBuilder sb = new StringBuilder();
             //TODO: Include all the possible namespaces dynamically here.
+            sb.AppendLine("using Moq;");
+            sb.AppendLine("using System;");
             sb.AppendLine("using Xunit;");
             return sb.ToString();
         }
