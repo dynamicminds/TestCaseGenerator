@@ -13,8 +13,7 @@ namespace TestCaseGenerator.Constants
         public string InputPath { get; set; }
         public string OutputPath { get; set; }
         public string ClassName { get; set; }
-        public List<string> ReferencedClassNames { get; set; }
-        public string ServiceClassName { get; set; }
+        public List<DataType> ReferencedClassNames { get; set; }
         public List<MethodParameters> methodParameters { get; set; }
     }
 }
