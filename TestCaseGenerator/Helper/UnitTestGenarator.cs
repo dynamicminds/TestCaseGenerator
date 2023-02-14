@@ -64,8 +64,43 @@ namespace TestCaseGenerator
                             Name = "name",
                             Type = "OkResult"
                         }
+                     },
+                     new MethodParameters
+                     {
+                         Name = "AddEmployee",
+                         Signature = new List<DataType>
+                         { new DataType
+                            {
+                             Name = "addStudentDto",
+                             Type = "AddStudentDto"
+                            }
+                         },
+                         Exceptions = new List<DataType>
+                         {
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "ArgumentException"
+                             },
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "ObjectNotFoundException"
+                             },
+                             new DataType
+                             {
+                                 Name = "name",
+                                 Type = "Exception"
+                             }
+                         },
+                         ReturnValue = new DataType
+                        {
+                            Name = "name",
+                            Type = "OkResult"
+                        }
                      }
                  },
+
                 OutputFileName = "EmployeeControllerTest.cs",
                 OutputPath = "d:\\xyz\\",
                 ReferencedClassNames = new List<DataType>
@@ -124,17 +159,17 @@ namespace TestCaseGenerator
             {
                 if (exceptionName == "ArgumentException")
                 {
-                    code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " +"= null;");
+                    code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " = null;");
                 }
                 else
                 {
                     if (sign.Type == "string")
                     {
-                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " + "= " + "\"" + sign.Name.ToLower() + "\";");
+                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " = " + "\"" + sign.Name.ToLower() + "\";");
                     }
                     else
                     {
-                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " " + "= " + "new" + sign.Type + "();");
+                        code.AppendLine("\t\t\t" + sign.Type + " " + sign.Name + " = " + "new " + sign.Type + "();");
                     }
                 }
             }
@@ -408,6 +443,8 @@ namespace TestCaseGenerator
         {
             StringBuilder sb = new StringBuilder();
             //TODO: Include all the possible namespaces dynamically here.
+            sb.AppendLine("using Moq;");
+            sb.AppendLine("using System;");
             sb.AppendLine("using Xunit;");
             return sb.ToString();
         }
