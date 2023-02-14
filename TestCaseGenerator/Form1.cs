@@ -68,6 +68,7 @@ namespace TestCaseGenerator
                     stringBuilder.Append('\n');
                     stringBuilder.Append(testGenerator.GenerateUnitTestAssertValues(methodName, "return", "OkResult"));
                     stringBuilder.Append('\n');
+                    loopCtr = 0;
                 }
             }
 
