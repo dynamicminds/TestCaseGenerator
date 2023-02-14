@@ -141,7 +141,7 @@ namespace TestCaseGenerator
 
             if( exceptionName != "ArgumentException")
             {
-                code.AppendLine("\t\t\tmock" + serviceFile + ".Setup(service => service." + methodParameter.Name + "(" + variableName + ").Throws<" + exceptionName +">();");
+                code.AppendLine("\t\t\tmock" + serviceFile + ".Setup(service => service." + methodParameter.Name + "(" + variableName + ")).Throws<" + exceptionName +">();");
             }
 
             return code.ToString();
@@ -244,8 +244,19 @@ namespace TestCaseGenerator
             var csFileContent = File.ReadAllText(csFilePath);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(csFileContent);
             CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
-            var nds = (NamespaceDeclarationSyntax)root.Members[0];
-            var cds = (ClassDeclarationSyntax)nds.Members[0];
+            ClassDeclarationSyntax cds;
+            if (root.Members[0].GetType().Name == "FileScopedNamespaceDeclarationSyntax")
+            {
+                var fsd = (FileScopedNamespaceDeclarationSyntax)root.Members[0];
+                cds = (ClassDeclarationSyntax)fsd.Members[0];
+            }
+            else
+            {
+                var nds = (NamespaceDeclarationSyntax)root.Members[0];
+                cds = (ClassDeclarationSyntax)nds.Members[0];
+            }
+           // var nds = (NamespaceDeclarationSyntax)root.Members[0];
+           // var cds = (ClassDeclarationSyntax)nds.Members[0];
             string catchPattern = @"catch\s\(\s*(.*?)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\)\s*\{(.*?)\}";
 
             //Class Name
@@ -368,7 +379,7 @@ namespace TestCaseGenerator
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}public {1}()\n", "".PadRight(noOfRightPadding), testClassName);
             sb.AppendFormat("{0}{{\n", "".PadRight(noOfRightPadding));
-            sb.AppendFormat("  {0}this.{1} = new {2}(", "".PadRight(noOfRightPadding), fileParameters.ClassName.DoCamelCase(), fileParameters.ClassName);
+            sb.AppendFormat("  {0}this.controller = new {2}(", "".PadRight(noOfRightPadding), fileParameters.ClassName.DoCamelCase(), fileParameters.ClassName);
 
             string mockObjectParameters = string.Empty;
             foreach (var parameter in fileParameters.ReferencedClassNames)
@@ -382,12 +393,12 @@ namespace TestCaseGenerator
         public static string GenerateUnitTestVariables(List<DataType> constructorParameters, string className, int noOfRightPadding = 0)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("{0}private readonly {1} {2};\n", "".PadRight(noOfRightPadding), className, className.DoCamelCase());
+            sb.AppendFormat("{0}private readonly {1} controller;\n", "".PadRight(noOfRightPadding), className, className.DoCamelCase());
 
             foreach (var parameter in constructorParameters)
             {
                 // sb.AppendLine("private readonly Mock<IDocumentDbRepository<PlatformUser>> mockPlatformUserRepository = new Mock<IDocumentDbRepository<PlatformUser>>();");
-                sb.AppendFormat("{0}private readonly Mock<{1}> mock{2} = new Mock<{1}>();\n", "".PadRight(noOfRightPadding), parameter.Type, parameter.Name.DoCamelCase(false));
+                sb.AppendFormat("{0}private readonly Mock<{1}> mock{2} = new Mock<{1}>();\n", "".PadRight(noOfRightPadding), parameter.Type, parameter.Name.DoCamelCase(false).Trim(','));
             }
             return sb.ToString();
         }
